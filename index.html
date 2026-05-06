@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1F4E79">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Mi Finanzas Pro - Identidad Contable</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <style>
         :root {
             --primary: #1F4E79; --secondary: #2E75B6; --accent: #70AD47;
@@ -25,7 +30,6 @@
         .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; font-size: 1rem; }
         .btn-primary { background: var(--primary); }
         .btn-excel { background: #1D6F42; }
-        /* RECIBO ESTILO DIAN */
         .receipt-box { background: white; border: 1px solid #333; padding: 20px; font-family: 'Courier New', monospace; color: #000; }
         .receipt-header { border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; text-align: center; }
         .r-line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dotted #ccc; font-size: 0.85rem; }
@@ -41,7 +45,6 @@
     <p>Freddy Farinango - Contador Público</p>
 </div>
 
-<!-- DASHBOARD -->
 <div id="scr-home" class="screen active">
     <div class="kpi-grid">
         <div class="kpi"><div style="color:var(--accent)">Ingresos</div><div id="tot-in" class="val">$ 0</div></div>
@@ -54,7 +57,6 @@
     <button onclick="exportExcel()" class="btn btn-excel">📊 Reporte Detallado (Excel/CSV)</button>
 </div>
 
-<!-- REGISTRO -->
 <div id="scr-add" class="screen">
     <div class="card">
         <div class="form-group"><label>Tipo de Movimiento</label>
@@ -68,7 +70,6 @@
     </div>
 </div>
 
-<!-- RECIBO -->
 <div id="scr-rec" class="screen">
     <div class="card receipt-box" id="rec-print">
         <div class="receipt-header"><h3>COMPROBANTE CONTABLE</h3></div>
@@ -89,6 +90,15 @@
 </nav>
 
 <script>
+    // Registro del Service Worker para que se pueda instalar
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registrado', reg))
+                .catch(err => console.log('Error SW', err));
+        });
+    }
+
     let data = JSON.parse(localStorage.getItem('freddy_fin_v3')) || [];
 
     function nav(id, el) {
@@ -106,13 +116,12 @@
         const amt = parseFloat(document.getElementById('amt').value);
         const type = document.getElementById('type').value;
 
-        if(!ter || !nit || !desc || isNaN(amt)) return alert("Por favor complete todos los datos, incluyendo el NIT/CC.");
+        if(!ter || !nit || !desc || isNaN(amt)) return alert("Complete todos los datos.");
 
         const entry = { ter, nit, desc, amt, type, date: new Date().toLocaleString() };
         data.push(entry);
         localStorage.setItem('freddy_fin_v3', JSON.stringify(data));
         
-        // Actualizar Recibo
         document.getElementById('r-date').innerText = entry.date;
         document.getElementById('r-ter').innerText = entry.ter.toUpperCase();
         document.getElementById('r-nit').innerText = entry.nit;
@@ -144,14 +153,7 @@
         const a = document.createElement('a'); a.href = url; a.download = 'Reporte_Contable_Freddy.csv'; a.click();
     }
     updateUI();
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Registro de SW exitoso', reg))
-        .catch(err => console.warn('Error al registrar SW', err));
-    });
-  }
 </script>
 </body>
 </html>
+
