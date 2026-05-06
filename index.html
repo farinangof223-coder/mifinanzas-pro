@@ -1,84 +1,142 @@
-<!-- ... (Manten tu encabezado y estilos, añade estos nuevos estilos) ... -->
-<style>
-    .transaction-item {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 12px; background: white; border-radius: 10px;
-        margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        border-left: 5px solid #ccc;
-    }
-    .transaction-item.in { border-left-color: var(--accent); }
-    .transaction-item.out { border-left-color: var(--danger); }
-    .delete-btn { background: #ffebee; color: var(--danger); border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-</style>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1F4E79">
+    <title>Mi Finanzas Pro - Freddy Farinango</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #1F4E79; --secondary: #2E75B6; --accent: #70AD47;
+            --danger: #C00000; --light: #F2F2F2; --white: #FFFFFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--light); padding-bottom: 80px; }
+        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .screen { display: none; padding: 15px; max-width: 500px; margin: 0 auto; }
+        .screen.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .kpi { text-align: center; padding: 15px; border-radius: 10px; background: white; border-top: 4px solid var(--primary); }
+        .val { font-size: 1.2rem; font-weight: bold; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; font-size: 1rem; }
+        .btn-primary { background: var(--primary); }
+        .btn-excel { background: #1D6F42; }
+        .btn-danger { background: var(--danger); font-size: 0.7rem; padding: 5px; width: auto; margin: 0; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); }
+        .nav-item { border: none; background: none; color: #888; font-weight: bold; font-size: 0.7rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .nav-item.active { color: var(--primary); }
+        /* HISTORIAL */
+        .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .hist-in { color: var(--accent); font-weight: bold; }
+        .hist-out { color: var(--danger); font-weight: bold; }
+    </style>
+</head>
+<body>
 
-<!-- AGREGAR ESTA PANTALLA EN EL BODY -->
-<div id="scr-history" class="screen">
+<div class="header">
+    <h1>MI FINANZAS PRO</h1>
+    <p>Freddy Farinango - Contador Público</p>
+</div>
+
+<!-- INICIO -->
+<div id="scr-home" class="screen active">
+    <div class="kpi-grid">
+        <div class="kpi"><div style="color:var(--accent)">Ingresos</div><div id="tot-in" class="val">$ 0</div></div>
+        <div class="kpi"><div style="color:var(--danger)">Gastos</div><div id="tot-out" class="val">$ 0</div></div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <div id="tot-net" style="font-size:2rem; font-weight:900; color:var(--primary)">$ 0</div>
+    </div>
+    <button onclick="exportExcel()" class="btn btn-excel">📊 Reporte Excel (CSV)</button>
+</div>
+
+<!-- REGISTRO -->
+<div id="scr-add" class="screen">
     <div class="card">
-        <h3 style="margin-bottom:15px; color:var(--primary);">Historial de Movimientos</h3>
-        <div id="history-list">
-            <!-- Aquí se cargarán los registros -->
+        <div class="form-group"><label>Tercero / Empresa</label><input type="text" id="ter" placeholder="Ej: Juan Perez"></div>
+        <div class="form-group"><label>Concepto</label><input type="text" id="desc" placeholder="Ej: Venta"></div>
+        <div class="form-group"><label>Valor</label><input type="number" id="amt" placeholder="0"></div>
+        <div class="form-group">
+            <label>Tipo</label>
+            <select id="type"><option value="in">Ingreso (+)</option><option value="out">Gasto (-)</option></select>
         </div>
+        <button onclick="saveData()" class="btn btn-primary">✅ Guardar Datos</button>
     </div>
 </div>
 
-<!-- ACTUALIZAR TU NAV (Añade el botón de Historial) -->
+<!-- HISTORIAL -->
+<div id="scr-hist" class="screen">
+    <div class="card" id="hist-list">
+        <p style="text-align:center; color:#888;">No hay registros aún.</p>
+    </div>
+</div>
+
 <nav class="bottom-nav">
     <button class="nav-item active" onclick="nav('scr-home', this)">🏠 INICIO</button>
     <button class="nav-item" onclick="nav('scr-add', this)">➕ REGISTRAR</button>
-    <button class="nav-item" onclick="nav('scr-history', this)">📜 HISTORIAL</button>
-    <button class="nav-item" onclick="nav('scr-rec', this)">📑 RECIBO</button>
+    <button class="nav-item" onclick="nav('scr-hist', this)">📜 HISTORIAL</button>
 </nav>
 
 <script>
-    // [Manten tu lógica anterior y añade/reemplaza estas funciones]
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+    
+    let data = JSON.parse(localStorage.getItem('freddy_pro_final')) || [];
 
     function nav(id, el) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-        
-        if(id === 'scr-history') renderHistory();
+        if(id === 'scr-hist') renderHist();
         updateUI();
     }
 
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = "";
-        
-        if(data.length === 0) {
-            list.innerHTML = "<p style='text-align:center; color:#888;'>No hay registros aún.</p>";
-            return;
-        }
+    function saveData() {
+        const ter = document.getElementById('ter').value;
+        const desc = document.getElementById('desc').value;
+        const amt = parseFloat(document.getElementById('amt').value);
+        const type = document.getElementById('type').value;
+        if(!ter || !desc || isNaN(amt)) return alert("Completa los datos");
 
-        // Mostrar del más reciente al más antiguo
-        [...data].reverse().forEach((d, index) => {
-            const realIndex = data.length - 1 - index;
-            const div = document.createElement('div');
-            div.className = `transaction-item ${d.type}`;
-            div.innerHTML = `
-                <div>
-                    <div style="font-weight:bold; font-size:0.9rem;">${d.ter}</div>
-                    <div style="font-size:0.75rem; color:#666;">${d.date} - ${d.desc}</div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-weight:bold; color:${d.type=='in'?'var(--accent)':'var(--danger)'}">
-                        ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
-                    </div>
-                    <button class="delete-btn" onclick="deleteEntry(${realIndex})">Eliminar</button>
-                </div>
-            `;
-            list.appendChild(div);
+        data.push({ ter, desc, amt, type, date: new Date().toLocaleDateString() });
+        localStorage.setItem('freddy_pro_final', JSON.stringify(data));
+        alert("¡Guardado!");
+        document.getElementById('ter').value = ""; document.getElementById('desc').value = ""; document.getElementById('amt').value = "";
+        updateUI();
+    }
+
+    function updateUI() {
+        let inc = 0, exp = 0;
+        data.forEach(d => { if(d.type == 'in') inc += d.amt; else exp += d.amt; });
+        document.getElementById('tot-in').innerText = "$ " + inc.toLocaleString();
+        document.getElementById('tot-out').innerText = "$ " + exp.toLocaleString();
+        document.getElementById('tot-net').innerText = "$ " + (inc - exp).toLocaleString();
+    }
+
+    function renderHist() {
+        const list = document.getElementById('hist-list');
+        list.innerHTML = data.length ? "" : "<p style='text-align:center; color:#888;'>Sin registros.</p>";
+        data.forEach((d, i) => {
+            const item = document.createElement('div');
+            item.className = 'hist-item';
+            item.innerHTML = `<div><small>${d.date}</small><br><b>${d.ter}</b></div><div class="${d.type=='in'?'hist-in':'hist-out'}">${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}</div>`;
+            list.appendChild(item);
         });
     }
 
-    function deleteEntry(index) {
-        if(confirm("¿Estás seguro de eliminar este registro?")) {
-            data.splice(index, 1);
-            localStorage.setItem('freddy_fin_pro', JSON.stringify(data));
-            renderHistory();
-            updateUI();
-        }
+    function exportExcel() {
+        let csv = "Fecha,Tercero,Concepto,Tipo,Monto\n";
+        data.forEach(d => { csv += `${d.date},${d.ter},${d.desc},${d.type},${d.amt}\n`; });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Reporte.csv'; a.click();
     }
+    updateUI();
 </script>
-
+</body>
+</html>
