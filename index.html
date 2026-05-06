@@ -7,6 +7,7 @@
     <title>Mi Finanzas Pro - Freddy Farinango</title>
     <link rel="manifest" href="manifest.json">
     <style>
+        /* ESTILOS ORIGINALES PRESERVADOS AL 100% */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --primary: #1F4E79; --secondary: #2E75B6; --accent: #70AD47;
@@ -36,6 +37,17 @@
     </style>
 </head>
 <body>
+
+<!-- PANTALLA DE BLOQUEO (NUEVA) -->
+<div id="lock-screen" style="position: fixed; inset: 0; background: #1F4E79; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; text-align: center;">
+    <div style="background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 320px; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+        <h2 style="margin-bottom: 10px; color: #1F4E79;">Acceso Protegido</h2>
+        <p style="font-size: 0.8rem; margin-bottom: 20px; color: #666;">Ingresa tu clave de licencia para activar Mi Finanzas Pro.</p>
+        <input type="password" id="pin-input" placeholder="Clave" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 15px; font-size: 1.2rem; text-align: center; outline: none;">
+        <button onclick="validarPin()" style="width: 100%; padding: 15px; background: #1F4E79; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">Activar Aplicación</button>
+        <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px; display: none;">Clave incorrecta.</p>
+    </div>
+</div>
 
 <div class="header">
     <h1>MI FINANZAS PRO</h1>
@@ -97,9 +109,20 @@
 </nav>
 
 <script>
+    // LÓGICA DE SEGURIDAD
+    const CLAVE_MAESTRA = "FREDDY2026"; 
+    function validarPin() {
+        const pinIngresado = document.getElementById('pin-input').value;
+        if (pinIngresado === CLAVE_MAESTRA) {
+            document.getElementById('lock-screen').style.display = 'none';
+            localStorage.setItem('app_activada_freddy', 'true');
+        } else {
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    }
+
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
     
-    // Cambiamos el nombre de la DB para forzar actualización limpia
     let db = JSON.parse(localStorage.getItem('freddy_pro_v11')) || [];
 
     function nav(id, el) {
@@ -122,10 +145,8 @@
             date: new Date().toLocaleString()
         };
         if(!entry.ter || isNaN(entry.amt)) return alert("Completa los datos");
-
         db.push(entry);
         localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
-        
         alert("¡Registro Exitoso!");
         document.getElementById('ter').value = ""; document.getElementById('nit').value = "";
         document.getElementById('desc').value = ""; document.getElementById('amt').value = "";
@@ -158,16 +179,11 @@
     function renderHist() {
         const list = document.getElementById('hist-list');
         list.innerHTML = db.length ? "" : "<p style='text-align:center;'>Sin movimientos.</p>";
-        
-        // Invertimos el orden para ver lo más nuevo arriba
         db.slice().reverse().forEach((d, index) => {
             const actualIndex = db.length - 1 - index;
             list.innerHTML += `
                 <div class="transaction-item">
-                    <div>
-                        <small>${d.date}</small><br>
-                        <b>${d.ter}</b>
-                    </div>
+                    <div><small>${d.date}</small><br><b>${d.ter}</b></div>
                     <div style="text-align:right;">
                         <div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">
                             ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
@@ -179,7 +195,7 @@
     }
 
     function deleteItem(index) {
-        if(confirm("¿Seguro que quieres borrar este registro?")) {
+        if(confirm("¿Borrar este registro?")) {
             db.splice(index, 1);
             localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
             renderHist();
@@ -194,10 +210,18 @@
         a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
         a.download = 'Reporte_Finanzas.csv'; a.click();
     }
-    updateUI();
+
+    // VERIFICACIÓN DE ACTIVACIÓN AL CARGAR
+    window.onload = function() {
+        if (localStorage.getItem('app_activada_freddy') === 'true') {
+            document.getElementById('lock-screen').style.display = 'none';
+        }
+        updateUI();
+    }
 </script>
 </body>
 </html>
+
 
 
 
