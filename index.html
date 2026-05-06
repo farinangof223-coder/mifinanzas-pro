@@ -29,6 +29,7 @@
         .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white; margin-top: 10px; }
         .btn-primary { background: var(--primary); }
         .btn-excel { background: #1D6F42; }
+        .btn-delete { background: #ffebee; color: var(--danger); border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; margin-top: 5px; cursor: pointer; }
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
         .receipt-preview { background: white; border: 1px solid #333; padding: 20px; font-family: 'Courier New', monospace; color: #000; text-align: left; }
         .r-header { border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; text-align: center; }
@@ -98,7 +99,8 @@
 <script>
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
     
-    let db = JSON.parse(localStorage.getItem('freddy_final_pro_v10')) || [];
+    // Cambiamos el nombre de la DB para forzar actualización limpia
+    let db = JSON.parse(localStorage.getItem('freddy_pro_v11')) || [];
 
     function nav(id, el) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -122,9 +124,9 @@
         if(!entry.ter || isNaN(entry.amt)) return alert("Completa los datos");
 
         db.push(entry);
-        localStorage.setItem('freddy_final_pro_v10', JSON.stringify(db));
+        localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
         
-        alert("¡Registro Exitoso! Ve a la pestaña Recibo.");
+        alert("¡Registro Exitoso!");
         document.getElementById('ter').value = ""; document.getElementById('nit').value = "";
         document.getElementById('desc').value = ""; document.getElementById('amt').value = "";
         updateUI();
@@ -156,14 +158,33 @@
     function renderHist() {
         const list = document.getElementById('hist-list');
         list.innerHTML = db.length ? "" : "<p style='text-align:center;'>Sin movimientos.</p>";
-        db.slice().reverse().forEach(d => {
-            list.innerHTML += `<div class="transaction-item">
-                <div><small>${d.date}</small><br><b>${d.ter}</b></div>
-                <div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">
-                    ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
-                </div>
-            </div>`;
+        
+        // Invertimos el orden para ver lo más nuevo arriba
+        db.slice().reverse().forEach((d, index) => {
+            const actualIndex = db.length - 1 - index;
+            list.innerHTML += `
+                <div class="transaction-item">
+                    <div>
+                        <small>${d.date}</small><br>
+                        <b>${d.ter}</b>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">
+                            ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
+                        </div>
+                        <button class="btn-delete" onclick="deleteItem(${actualIndex})">Eliminar</button>
+                    </div>
+                </div>`;
         });
+    }
+
+    function deleteItem(index) {
+        if(confirm("¿Seguro que quieres borrar este registro?")) {
+            db.splice(index, 1);
+            localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
+            renderHist();
+            updateUI();
+        }
     }
 
     function exportExcel() {
@@ -171,11 +192,12 @@
         db.forEach(d => { csv += `${d.date},${d.ter},${d.nit},${d.desc},${d.type},${d.amt}\n`; });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-        a.download = 'Reporte.csv'; a.click();
+        a.download = 'Reporte_Finanzas.csv'; a.click();
     }
     updateUI();
 </script>
 </body>
 </html>
+
 
 
