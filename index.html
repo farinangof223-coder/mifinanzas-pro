@@ -10,7 +10,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <style>
-        /* ESTILOS ORIGINALES PRESERVADOS */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --primary: #1F4E79; --secondary: #2E75B6; --accent: #70AD47;
@@ -40,32 +39,23 @@
             transition: all 0.2s; border: none; background: none;
         }
         .nav-item.active { color: var(--primary); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
         .screen { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
         .screen.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-        .card {
-            background: white; border-radius: 12px; padding: 16px;
-            margin-bottom: 12px; box-shadow: var(--shadow);
-        }
-        .card-title { font-size: 0.85rem; color: #666; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .kpi-card { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); }
         .kpi-card.income { border-top: 4px solid var(--accent); }
         .kpi-card.expense { border-top: 4px solid var(--danger); }
-        .kpi-card.profit { border-top: 4px solid var(--primary); }
         .kpi-value { font-size: 1.4rem; font-weight: 700; }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 1rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 1rem; outline: none;}
+        .form-group input:focus { border-color: var(--secondary); }
         .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: white; margin-top: 10px; }
         .btn-primary { background: var(--primary); }
         .btn-excel { background: #1D6F42; }
-        /* ESTILO NUEVO PARA EL HISTORIAL (Adaptado al original) */
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: white; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .income-text { color: var(--accent); font-weight: bold; }
-        .expense-text { color: var(--danger); font-weight: bold; }
-        /* RECIBO ESTILO ORIGINAL */
         .receipt-preview { background: white; border: 2px solid #ddd; padding: 24px; border-radius: 8px; font-family: 'Courier New', monospace; }
         .receipt-header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 12px; margin-bottom: 12px; }
     </style>
@@ -77,48 +67,44 @@
     <p>Freddy Farinango - Contador Público</p>
 </div>
 
-<!-- PANTALLA INICIO -->
+<!-- INICIO -->
 <div id="scr-home" class="screen active">
     <div class="kpi-grid">
         <div class="kpi-card income"><div style="font-size:0.75rem; color:#888;">Ingresos</div><div id="res-in" class="kpi-value" style="color:var(--accent)">$ 0</div></div>
         <div class="kpi-card expense"><div style="font-size:0.75rem; color:#888;">Gastos</div><div id="res-out" class="kpi-value" style="color:var(--danger)">$ 0</div></div>
     </div>
-    <div class="kpi-card profit" style="margin-bottom:20px;">
-        <div style="font-size:0.75rem; color:#888;">Saldo Neto</div>
+    <div class="kpi-card" style="border-top: 4px solid var(--primary); margin-bottom:20px;">
+        <div style="font-size:0.75rem; color:#888;">Saldo Neto Disponible</div>
         <div id="res-net" class="kpi-value" style="color:var(--primary); font-size:2rem;">$ 0</div>
     </div>
-    <button onclick="exportExcel()" class="btn btn-excel">📊 Descargar Reporte Excel</button>
+    <button onclick="exportExcel()" class="btn btn-excel">📊 Descargar Reporte Excel (CSV)</button>
 </div>
 
-<!-- PANTALLA REGISTRO -->
+<!-- REGISTRO -->
 <div id="scr-add" class="screen">
     <div class="card">
-        <div class="form-group"><label>Tercero / Empresa</label><input type="text" id="ter" placeholder="Ej: Almacenes Exito"></div>
-        <div class="form-group"><label>NIT / CC</label><input type="text" id="nit" placeholder="Ej: 1085000..."></div>
-        <div class="form-group"><label>Concepto</label><input type="text" id="desc" placeholder="Ej: Compra de insumos"></div>
+        <div class="form-group"><label>Tercero (Cliente/Empresa)</label><input type="text" id="ter" placeholder="Ej: Almacenes Éxito"></div>
+        <div class="form-group"><label>NIT / CC</label><input type="text" id="nit" placeholder="Ej: 1085000XXX"></div>
+        <div class="form-group"><label>Concepto / Detalle</label><input type="text" id="desc" placeholder="Ej: Compra de insumos"></div>
         <div class="form-group"><label>Monto ($)</label><input type="number" id="amt" placeholder="0"></div>
         <div class="form-group">
-            <label>Tipo</label>
+            <label>Tipo de Movimiento</label>
             <select id="type"><option value="in">Ingreso (+)</option><option value="out">Gasto (-)</option></select>
         </div>
-        <button onclick="saveData()" class="btn btn-primary">✅ Guardar Registro</button>
+        <button onclick="saveData()" class="btn btn-primary">✅ Guardar Transacción</button>
     </div>
 </div>
 
-<!-- PANTALLA HISTORIAL (NUEVA) -->
+<!-- HISTORIAL -->
 <div id="scr-hist" class="screen">
-    <div id="hist-list">
-        <!-- Los registros se cargan aquí con el diseño original -->
-    </div>
+    <div id="hist-list"></div>
 </div>
 
-<!-- PANTALLA RECIBO -->
+<!-- RECIBO -->
 <div id="scr-rec" class="screen">
     <div class="receipt-preview" id="rec-box">
-        <div class="receipt-header"><h3>COMPROBANTE</h3><p>Mi Finanzas Pro</p></div>
-        <div id="rec-content">
-            <p style="text-align:center; color:#888;">Registra algo para ver el recibo</p>
-        </div>
+        <div class="receipt-header"><h3>COMPROBANTE CONTABLE</h3><p>Freddy Farinango Pro</p></div>
+        <div id="rec-content"><p style="text-align:center; color:#888;">Sin registros recientes</p></div>
     </div>
     <button onclick="window.print()" class="btn" style="background:var(--accent)">📲 Compartir Soporte</button>
 </div>
@@ -133,7 +119,7 @@
 <script>
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
     
-    let db = JSON.parse(localStorage.getItem('freddy_vFinal')) || [];
+    let db = JSON.parse(localStorage.getItem('freddy_app_v10')) || [];
 
     function nav(id, el) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -153,23 +139,21 @@
             type: document.getElementById('type').value,
             date: new Date().toLocaleString()
         };
-        if(!entry.ter || !entry.amt) return alert("Completa los datos");
+        if(!entry.ter || isNaN(entry.amt)) return alert("Completa los datos mínimos");
 
         db.push(entry);
-        localStorage.setItem('freddy_vFinal', JSON.stringify(db));
+        localStorage.setItem('freddy_app_v10', JSON.stringify(db));
         
-        // Cargar Recibo
         document.getElementById('rec-content').innerHTML = `
-            <div style="font-size:0.8rem">
+            <div style="font-size:0.85rem">
                 <p><b>FECHA:</b> ${entry.date}</p>
-                <p><b>TERCERO:</b> ${entry.ter}</p>
+                <p><b>TERCERO:</b> ${entry.ter.toUpperCase()}</p>
                 <p><b>NIT/CC:</b> ${entry.nit}</p>
-                <p><b>CONCEPTO:</b> ${entry.desc}</p>
+                <p><b>DETALLE:</b> ${entry.desc}</p>
                 <hr style="border:1px dashed #ccc; margin:10px 0;">
-                <p style="font-size:1.2rem; text-align:center;"><b>TOTAL: $${entry.amt.toLocaleString()}</b></p>
+                <p style="font-size:1.1rem; text-align:center;"><b>TOTAL: $${entry.amt.toLocaleString()}</b></p>
             </div>
         `;
-        
         alert("¡Registro Exitoso!");
         updateUI();
     }
@@ -184,12 +168,12 @@
 
     function renderHist() {
         const list = document.getElementById('hist-list');
-        list.innerHTML = "";
-        db.forEach((d, index) => {
+        list.innerHTML = db.length ? "" : "<p style='text-align:center; color:#888;'>Sin movimientos</p>";
+        db.slice().reverse().forEach((d) => {
             list.innerHTML += `
                 <div class="transaction-item">
-                    <div><small>${d.date}</small><br><b>${d.ter}</b></div>
-                    <div class="${d.type=='in'?'income-text':'expense-text'}">
+                    <div><small>${d.date}</small><br><b>${d.ter}</b><br><small>${d.desc}</small></div>
+                    <div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">
                         ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
                     </div>
                 </div>`;
@@ -201,11 +185,10 @@
         db.forEach(d => { csv += `${d.date},${d.ter},${d.nit},${d.desc},${d.type},${d.amt}\n`; });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-        a.download = 'Reporte_Finanzas.csv'; a.click();
+        a.download = 'Reporte_Contable_Pro.csv'; a.click();
     }
     updateUI();
 </script>
 </body>
 </html>
-
 
