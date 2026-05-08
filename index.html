@@ -7,16 +7,15 @@
     <title>Mi Finanzas Pro - Freddy Farinango</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* ESTILOS ORIGINALES PRESERVADOS AL 100% */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --primary: #1F4E79; --secondary: #2E75B6; --accent: #70AD47;
             --danger: #C00000; --light: #F2F2F2; --white: #FFFFFF; --shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--light); padding-bottom: 80px; overflow-x: hidden; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 16px; text-align: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 0.7rem; cursor: pointer; border: none; background: none; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); padding-bottom: 80px; overflow-x: hidden; }
+        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; text-align: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 0.65rem; cursor: pointer; border: none; background: none; font-weight: bold; }
         .nav-item.active { color: var(--primary); }
         .screen { display: none; padding: 16px; max-width: 500px; margin: 0 auto; }
         .screen.active { display: block; animation: fadeIn 0.3s; }
@@ -24,27 +23,26 @@
         .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .kpi-card { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: var(--shadow); border-top: 4px solid var(--primary); }
-        .form-group { margin-bottom: 14px; text-align: left; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 6px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 1rem; outline: none; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; color: white; margin-top: 10px; }
+        .form-group { margin-bottom: 12px; text-align: left; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #555; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; font-size: 1rem; }
         .btn-primary { background: var(--primary); }
         .btn-excel { background: #1D6F42; }
-        .btn-delete { background: #ffebee; color: var(--danger); border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; margin-top: 5px; cursor: pointer; }
+        .btn-install { background: #FF5722; display: none; border: 2px solid #fff; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
         .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-        .receipt-preview { background: white; border: 1px solid #333; padding: 20px; font-family: 'Courier New', monospace; color: #000; text-align: left; }
-        .r-header { border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; text-align: center; }
+        .btn-delete { background: #ffebee; color: var(--danger); border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
+        .receipt-box { background: white; border: 1px solid #333; padding: 20px; font-family: 'Courier New', monospace; text-align: left; }
     </style>
 </head>
 <body>
 
-<!-- PANTALLA DE BLOQUEO (NUEVA) -->
-<div id="lock-screen" style="position: fixed; inset: 0; background: #1F4E79; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; text-align: center;">
-    <div style="background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 320px; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-        <h2 style="margin-bottom: 10px; color: #1F4E79;">Acceso Protegido</h2>
-        <p style="font-size: 0.8rem; margin-bottom: 20px; color: #666;">Ingresa tu clave de licencia para activar Mi Finanzas Pro.</p>
-        <input type="password" id="pin-input" placeholder="Clave" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 15px; font-size: 1.2rem; text-align: center; outline: none;">
-        <button onclick="validarPin()" style="width: 100%; padding: 15px; background: #1F4E79; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">Activar Aplicación</button>
+<div id="lock-screen" style="position: fixed; inset: 0; background: #1F4E79; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 320px; color: #333; text-align: center;">
+        <h2 style="color: #1F4E79; margin-bottom: 10px;">Acceso Seguro</h2>
+        <input type="password" id="pin-input" placeholder="Clave" style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 15px; text-align: center; font-size: 1.2rem;">
+        <button onclick="validarPin()" style="width: 100%; padding: 15px; background: #1F4E79; color: white; border: none; border-radius: 10px; font-weight: bold;">ACTIVAR</button>
         <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px; display: none;">Clave incorrecta.</p>
     </div>
 </div>
@@ -54,50 +52,34 @@
     <p>Freddy Farinango - Contador Público</p>
 </div>
 
-<!-- INICIO -->
 <div id="scr-home" class="screen active">
+    <button id="btn-instalar-manual" class="btn btn-install">📲 INSTALAR APP</button>
     <div class="kpi-grid">
-        <div class="kpi-card" style="border-top-color:var(--accent)">
-            <div style="font-size:0.75rem; color:#888;">Ingresos</div>
-            <div id="res-in" style="color:var(--accent); font-weight:bold; font-size:1.2rem;">$ 0</div>
-        </div>
-        <div class="kpi-card" style="border-top-color:var(--danger)">
-            <div style="font-size:0.75rem; color:#888;">Gastos</div>
-            <div id="res-out" style="color:var(--danger); font-weight:bold; font-size:1.2rem;">$ 0</div>
-        </div>
+        <div class="kpi-card" style="border-top-color:var(--accent)"><div>Ingresos</div><div id="res-in" style="color:var(--accent); font-weight:bold;">$ 0</div></div>
+        <div class="kpi-card" style="border-top-color:var(--danger)"><div>Gastos</div><div id="res-out" style="color:var(--danger); font-weight:bold;">$ 0</div></div>
     </div>
-    <div class="kpi-card">
-        <div style="font-size:0.75rem; color:#888;">Saldo Neto Disponible</div>
-        <div id="res-net" style="color:var(--primary); font-size:2rem; font-weight:900;">$ 0</div>
+    <div class="kpi-card" style="margin-bottom:20px;">
+        <div>Saldo Disponible</div>
+        <div id="res-net" style="color:var(--primary); font-size:1.8rem; font-weight:bold;">$ 0</div>
     </div>
-    <button onclick="exportExcel()" class="btn btn-excel">📊 Descargar Reporte Excel</button>
+    <button onclick="exportExcel()" class="btn btn-excel">📊 Descargar Excel</button>
 </div>
 
-<!-- REGISTRO -->
 <div id="scr-add" class="screen">
     <div class="card">
-        <div class="form-group"><label>Tercero / Empresa</label><input type="text" id="ter" placeholder="Ej: Almacenes Exito"></div>
-        <div class="form-group"><label>NIT / CC</label><input type="text" id="nit" placeholder="Ej: 1085000..."></div>
-        <div class="form-group"><label>Concepto</label><input type="text" id="desc" placeholder="Ej: Compra de insumos"></div>
-        <div class="form-group"><label>Monto ($)</label><input type="number" id="amt" placeholder="0"></div>
-        <div class="form-group">
-            <label>Tipo</label>
-            <select id="type"><option value="in">Ingreso (+)</option><option value="out">Gasto (-)</option></select>
-        </div>
-        <button onclick="saveData()" class="btn btn-primary">✅ Guardar Datos</button>
+        <div class="form-group"><label>Tercero</label><input type="text" id="ter" placeholder="Nombre"></div>
+        <div class="form-group"><label>NIT / CC</label><input type="text" id="nit" placeholder="Documento"></div>
+        <div class="form-group"><label>Concepto</label><input type="text" id="desc" placeholder="Detalle"></div>
+        <div class="form-group"><label>Monto</label><input type="number" id="amt" placeholder="0"></div>
+        <div class="form-group"><label>Tipo</label><select id="type"><option value="in">Ingreso (+)</option><option value="out">Gasto (-)</option></select></div>
+        <button onclick="saveData()" class="btn btn-primary">✅ Guardar</button>
     </div>
 </div>
 
-<!-- HISTORIAL -->
-<div id="scr-hist" class="screen">
-    <div class="card" id="hist-list"></div>
-</div>
+<div id="scr-hist" class="screen"><div class="card" id="hist-list"></div></div>
 
-<!-- RECIBO -->
 <div id="scr-rec" class="screen">
-    <div class="receipt-preview" id="rec-box">
-        <p style="text-align:center; color:#888;">No hay recibos guardados.</p>
-    </div>
+    <div class="receipt-box" id="rec-box"><p style="text-align:center; color:#888;">Sin recibos.</p></div>
     <button onclick="window.print()" class="btn" style="background:var(--accent)">📲 Compartir Soporte</button>
 </div>
 
@@ -109,21 +91,23 @@
 </nav>
 
 <script>
-    // LÓGICA DE SEGURIDAD
+    let deferredPrompt;
+    const btnInstalar = document.getElementById('btn-instalar-manual');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (localStorage.getItem('app_act_v11') === 'true') btnInstalar.style.display = 'block'; });
+
+    btnInstalar.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') btnInstalar.style.display = 'none'; deferredPrompt = null; } });
+
     const CLAVE_MAESTRA = "FREDDY2026"; 
     function validarPin() {
-        const pinIngresado = document.getElementById('pin-input').value;
-        if (pinIngresado === CLAVE_MAESTRA) {
+        if (document.getElementById('pin-input').value === CLAVE_MAESTRA) {
             document.getElementById('lock-screen').style.display = 'none';
-            localStorage.setItem('app_activada_freddy', 'true');
-        } else {
-            document.getElementById('error-msg').style.display = 'block';
-        }
+            localStorage.setItem('app_act_v11', 'true');
+            if (deferredPrompt) btnInstalar.style.display = 'block';
+        } else { document.getElementById('error-msg').style.display = 'block'; }
     }
 
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
-    
-    let db = JSON.parse(localStorage.getItem('freddy_pro_v11')) || [];
+    let db = JSON.parse(localStorage.getItem('freddy_db_v11')) || [];
 
     function nav(id, el) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -136,20 +120,11 @@
     }
 
     function saveData() {
-        const entry = {
-            ter: document.getElementById('ter').value,
-            nit: document.getElementById('nit').value,
-            desc: document.getElementById('desc').value,
-            amt: parseFloat(document.getElementById('amt').value),
-            type: document.getElementById('type').value,
-            date: new Date().toLocaleString()
-        };
-        if(!entry.ter || isNaN(entry.amt)) return alert("Completa los datos");
+        const entry = { ter: document.getElementById('ter').value, nit: document.getElementById('nit').value, desc: document.getElementById('desc').value, amt: parseFloat(document.getElementById('amt').value), type: document.getElementById('type').value, date: new Date().toLocaleString() };
+        if(!entry.ter || isNaN(entry.amt)) return alert("Datos incompletos");
         db.push(entry);
-        localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
-        alert("¡Registro Exitoso!");
-        document.getElementById('ter').value = ""; document.getElementById('nit').value = "";
-        document.getElementById('desc').value = ""; document.getElementById('amt').value = "";
+        localStorage.setItem('freddy_db_v11', JSON.stringify(db));
+        alert("¡Guardado!");
         updateUI();
     }
 
@@ -157,15 +132,7 @@
         const box = document.getElementById('rec-box');
         if (db.length === 0) return;
         const last = db[db.length - 1];
-        box.innerHTML = `
-            <div class="r-header"><h3>COMPROBANTE</h3><p>Mi Finanzas Pro</p></div>
-            <p><b>FECHA:</b> ${last.date}</p>
-            <p><b>TERCERO:</b> ${last.ter.toUpperCase()}</p>
-            <p><b>NIT/CC:</b> ${last.nit}</p>
-            <p><b>DETALLE:</b> ${last.desc}</p>
-            <hr style="border:1px dashed #ccc; margin:10px 0;">
-            <p style="font-size:1.2rem; text-align:center;"><b>TOTAL: $${last.amt.toLocaleString()}</b></p>
-        `;
+        box.innerHTML = `<h3 style="text-align:center; border-bottom:2px solid #000; margin-bottom:10px;">COMPROBANTE</h3><p><b>FECHA:</b> ${last.date}</p><p><b>TERCERO:</b> ${last.ter.toUpperCase()}</p><p><b>NIT/CC:</b> ${last.nit}</p><p><b>DETALLE:</b> ${last.desc}</p><hr style="border:1px dashed #ccc; margin:10px 0;"><p style="font-size:1.2rem; text-align:center;"><b>TOTAL: $${last.amt.toLocaleString()}</b></p>`;
     }
 
     function updateUI() {
@@ -181,47 +148,22 @@
         list.innerHTML = db.length ? "" : "<p style='text-align:center;'>Sin movimientos.</p>";
         db.slice().reverse().forEach((d, index) => {
             const actualIndex = db.length - 1 - index;
-            list.innerHTML += `
-                <div class="transaction-item">
-                    <div><small>${d.date}</small><br><b>${d.ter}</b></div>
-                    <div style="text-align:right;">
-                        <div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">
-                            ${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}
-                        </div>
-                        <button class="btn-delete" onclick="deleteItem(${actualIndex})">Eliminar</button>
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="transaction-item"><div><small>${d.date}</small><br><b>${d.ter}</b></div><div style="text-align:right;"><div style="color:${d.type=='in'?'var(--accent)':'var(--danger)'}; font-weight:bold;">${d.type=='in'?'+':'-'} $${d.amt.toLocaleString()}</div><button class="btn-delete" onclick="deleteItem(${actualIndex})">Borrar</button></div></div>`;
         });
     }
 
-    function deleteItem(index) {
-        if(confirm("¿Borrar este registro?")) {
-            db.splice(index, 1);
-            localStorage.setItem('freddy_pro_v11', JSON.stringify(db));
-            renderHist();
-            updateUI();
-        }
-    }
+    function deleteItem(index) { if(confirm("¿Borrar?")) { db.splice(index, 1); localStorage.setItem('freddy_db_v11', JSON.stringify(db)); renderHist(); updateUI(); } }
 
     function exportExcel() {
         let csv = "\ufeffFecha,Tercero,Identificacion,Concepto,Tipo,Monto\n";
         db.forEach(d => { csv += `${d.date},${d.ter},${d.nit},${d.desc},${d.type},${d.amt}\n`; });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-        a.download = 'Reporte_Finanzas.csv'; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})); a.download = 'Reporte.csv'; a.click();
     }
 
-    // VERIFICACIÓN DE ACTIVACIÓN AL CARGAR
-    window.onload = function() {
-        if (localStorage.getItem('app_activada_freddy') === 'true') {
-            document.getElementById('lock-screen').style.display = 'none';
-        }
-        updateUI();
-    }
+    window.onload = function() { if (localStorage.getItem('app_act_v11') === 'true') document.getElementById('lock-screen').style.display = 'none'; updateUI(); }
 </script>
 </body>
 </html>
-
 
 
 
